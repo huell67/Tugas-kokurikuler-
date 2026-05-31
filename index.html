@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistika Nilai TKA Matematika Indonesia</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    color:#2c3e50;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+
+.stat-box{
+    background:#3498db;
+    color:white;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.stat-box h2{
+    margin-top:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top: 10px;
+}
+
+th,td{
+    padding:10px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+
+th{
+    background:#3498db;
+    color:white;
+}
+
+.th-pie {
+    background: #9b59b6;
+}
+
+canvas{
+    max-height:500px;
+}
+
+.pie-container {
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+}
+
+.kesimpulan-text p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #333;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Analisis Statistik Nilai TKA Matematika Indonesia</h1>
+<h3>Nama: Jessica Anastasya Oktaviana</h3>
+<h3>Absen: 12</h3>
+<h3>Kelas: XI TKJ 2</h3>
+<p class="subtitle">Data 20 Provinsi Tahun 2025 </p>
+
+<div class="card">
+    <div class="stats">
+        <div class="stat-box">
+            <h3>Mean</h3>
+            <h2 id="mean"></h2>
+        </div>
+
+        <div class="stat-box">
+            <h3>Median</h3>
+            <h2 id="median"></h2>
+        </div>
+
+        <div class="stat-box">
+            <h3>Modus</h3>
+            <h2 id="modus"></h2>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Data Asli Nilai Provinsi</h2>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Provinsi</th>
+                <th>Nilai Asli</th>
+                <th>Nilai Pembulatan</th>
+            </tr>
+        </thead>
+        <tbody id="tableData"></tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Diagram Batang</h2>
+    <canvas id="barChart"></canvas>
+</div>
+
+<div class="card">
+    <h2>Histogram Nilai</h2>
+    <canvas id="histogram"></canvas>
+</div>
+
+<div class="card">
+    <h2>Diagram Lingkaran (Proporsi Rentang Nilai)</h2>
+    <div class="pie-container">
+        <canvas id="pieChart"></canvas>
+    </div>
+    
+    <h2>Tabel Distribusi Frekuensi Lingkaran</h2>
+    <table>
+        <thead>
+            <tr>
+                <th class="th-pie">Rentang Nilai</th>
+                <th class="th-pie">Frekuensi (Jumlah Provinsi)</th>
+                <th class="th-pie">Persentase (%)</th>
+            </tr>
+        </thead>
+        <tbody id="tablePieData"></tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Kesimpulan Analisis</h2>
+    <br>
+    <div class="kesimpulan-text">
+        <p><strong>1. Pemusatan Data:</strong> Setelah data dibulatkan ke satuan terdekat, rata-rata (Mean) nilai nasional menjadi <strong>36.75</strong> dan nilai tengahnya (Median) adalah <strong>36.50</strong>. Nilai Modus berhasil ditemukan yaitu <strong>36 dan 38</strong> (Bimodal) karena kedua angka tersebut paling banyak muncul (masing-masing 4 kali).</p>
+        <p><strong>2. Nilai Ekstrem:</strong> Berdasarkan data bulat, nilai tertinggi diraih oleh <strong>DI Yogyakarta (43)</strong> dan nilai terendah berada di <strong>Nusa Tenggara Barat (34)</strong> dengan rentang jarak antar-provinsi sebesar 9 poin.</p>
+        <p><strong>3. Sebaran Proporsi:</strong> Melalui tabel dan diagram lingkaran, terlihat porsi terbesar wilayah berada pada rentang nilai rendah-sedang (33-37), di mana kelompok nilai 35-37 mendominasi dengan persentase 30% dari total nasional.</p>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+const dataRaw = [
+["DI Yogyakarta",43.09],
+["DKI Jakarta",40.18],
+["Jawa Tengah",39.16],
+["Sumatera Utara",38.53],
+["Riau",38.16],
+["Jawa Timur",38.15],
+["Bali",37.52],
+["Kepulauan Riau",37.12],
+["Sumatera Barat",36.92],
+["Bangka Belitung",36.49],
+["Kalimantan Selatan",36.31],
+["Banten",35.98],
+["Jawa Barat",35.74],
+["Lampung",35.41],
+["Kalimantan Timur",35.17],
+["Sulawesi Selatan",34.95],
+["Sumatera Selatan",34.68],
+["Aceh",34.22],
+["Kalimantan Tengah",33.87],
+["Nusa Tenggara Barat",33.51]
+];
+
+// PROSES PEMBULATAN NILAI KE SATUAN TERDEKAT
+const nilai = dataRaw.map(x => Math.round(x[1]));
+
+// TABEL DATA UTAMA
+const tbody = document.getElementById("tableData");
+dataRaw.forEach((item, index) => {
+    tbody.innerHTML += `
+    <tr>
+        <td>${index+1}</td>
+        <td>${item[0]}</td>
+        <td>${item[1]}</td>
+        <td><strong>${Math.round(item[1])}</strong></td>
+    </tr>`;
+});
+
+// MEAN
+const mean = nilai.reduce((a,b)=>a+b,0)/nilai.length;
+
+// MEDIAN
+const sorted = [...nilai].sort((a,b)=>a-b);
+const median = (sorted[9] + sorted[10]) / 2;
+
+// MODUS DENGAN DATA BULAT
+const count = {};
+let maxCount = 0;
+nilai.forEach(n => {
+    count[n] = (count[n] || 0) + 1;
+    if (count[n] > maxCount) maxCount = count[n];
+});
+
+let modes = [];
+for (let n in count) {
+    if (count[n] === maxCount) modes.push(n);
+}
+let modus = modes.join(", ");
+
+// TAMPILKAN STATISTIK UTAMA
+document.getElementById("mean").innerHTML = mean.toFixed(2);
+document.getElementById("median").innerHTML = median.toFixed(2);
+document.getElementById("modus").innerHTML = modus;
+
+// BAR CHART
+new Chart(document.getElementById("barChart"),{
+    type:'bar',
+    data:{
+        labels:dataRaw.map(x=>x[0]),
+        datasets:[{
+            label:'Nilai TKA (Bulat)',
+            data:nilai,
+            backgroundColor: '#3498db'
+        }]
+    },
+    options:{ responsive:true }
+});
+
+// PENGELOMPOKAN DATA UNTUK HISTOGRAM, PIE CHART & TABEL LINGKARAN
+const kelompok = [
+    {label:'33-35', jumlah:0},
+    {label:'35-37', jumlah:0},
+    {label:'37-39', jumlah:0},
+    {label:'39-41', jumlah:0},
+    {label:'41-43', jumlah:0},
+    {label:'43-45', jumlah:0}
+];
+
+nilai.forEach(n=>{
+    if(n<35) kelompok[0].jumlah++;
+    else if(n<37) kelompok[1].jumlah++;
+    else if(n<39) kelompok[2].jumlah++;
+    else if(n<41) kelompok[3].jumlah++;
+    else if(n<43) kelompok[4].jumlah++;
+    else kelompok[5].jumlah++;
+});
+
+// ISI DATA KE TABEL LINGKARAN (DISTRIBUSI FREKUENSI)
+const tbodyPie = document.getElementById("tablePieData");
+const totalData = nilai.length;
+
+kelompok.forEach(k => {
+    let persentase = ((k.jumlah / totalData) * 100).toFixed(0);
+    tbodyPie.innerHTML += `
+    <tr>
+        <td>Rentang ${k.label}</td>
+        <td>${k.jumlah} Provinsi</td>
+        <td><strong>${persentase}%</strong></td>
+    </tr>`;
+});
+
+// HISTOGRAM
+new Chart(document.getElementById("histogram"),{
+    type:'bar',
+    data:{
+        labels:kelompok.map(x=>x.label),
+        datasets:[{
+            label:'Frekuensi',
+            data:kelompok.map(x=>x.jumlah),
+            backgroundColor: '#e67e22'
+        }]
+    },
+    options:{ responsive:true }
+});
+
+// DIAGRAM LINGKARAN (PIE CHART)
+new Chart(document.getElementById("pieChart"), {
+    type: 'pie',
+    data: {
+        labels: kelompok.map(x => `Rentang ${x.label}`),
+        datasets: [{
+            data: kelompok.map(x => x.jumlah),
+            backgroundColor: [
+                '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>
